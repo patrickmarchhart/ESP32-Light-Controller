@@ -5,7 +5,7 @@ Author:	Patrick Marchhart
 */
 
 #include <WiFiUdp.h>
-#include <WiFi.h>
+//#include <WiFi.h>
 
 #include "esp32-hal-ledc.h"
 #include "esp32-hal-adc.h"
@@ -32,7 +32,7 @@ Author:	Patrick Marchhart
 #define OUTPUT4_PWMgpio_HS		17
 
 // PWM settings
-#define PWMfrequency			100
+#define PWMfrequency			1000
 #define PWMresolution			16
 
 // ADC lines
@@ -56,9 +56,9 @@ IPAddress gateway_ip(gw[0], gw[1], gw[2], gw[3]);
 IPAddress     subnet(sn[0], sn[1], sn[2], sn[3]);
 
 // UDP configuration
-uint16_t udp_port = 1111;
-uint8_t  incomingPacket[255];
-WiFiUDP Udp_receive;
+uint16_t udp_port = 1111;		//used UDP port
+uint8_t  incomingPacket[255];	//UDP input buffer
+WiFiUDP Udp_receive;			//UDP object
 
 // ArtNet configuration
 #define ArtNet_Header "Art-Net"
@@ -102,16 +102,6 @@ uint8_t pwmgpio[8] =
 void setup()
 {
 	hw_configuration();
-	/*
-	ledcWrite(OUTPUT1_PWMchannel_LS, 6554);
-	ledcWrite(OUTPUT1_PWMchannel_HS, 13107);
-	ledcWrite(OUTPUT2_PWMchannel_LS, 19661);
-	ledcWrite(OUTPUT2_PWMchannel_HS, 26214);
-	ledcWrite(OUTPUT3_PWMchannel_LS, 32768);
-	ledcWrite(OUTPUT3_PWMchannel_HS, 39322);
-	ledcWrite(OUTPUT4_PWMchannel_LS, 45875);
-	ledcWrite(OUTPUT4_PWMchannel_HS, 52429);
-	*/
 	network_setup();
 }
 
@@ -212,15 +202,13 @@ void udp_processing()
 	if (packetSize)
 	{
 		// receive incoming UDP packets
-		Serial.printf("Received %d bytes from %s, port %d\n", packetSize, Udp_receive.remoteIP().toString().c_str(), Udp_receive.remotePort());
 		len = Udp_receive.read(incomingPacket, 255);
 		if (len > 0)
 		{
 			incomingPacket[len] = 0;
 		}
-		Serial.printf("UDP packet contents: %s\n", incomingPacket);
 
-		//example: CH1l:12345  CH1h:12345
+		
 		if ((incomingPacket[0] == 'C') && (incomingPacket[1] == 'H') && (incomingPacket[4] == ':'))
 		{
 			for (uint8_t i = 5; i < len; i++)
@@ -232,21 +220,6 @@ void udp_processing()
 			{
 				outx_duty_temp = 65535;
 			}
-
-			////debug
-			Serial.printf("Channel: %c\n", incomingPacket[2]);
-			Serial.print("Type: ");
-			if (incomingPacket[3] == 'h')
-			{
-				Serial.println("Highside");
-			}
-			if (incomingPacket[3] == 'l')
-			{
-				Serial.println("Lowside");
-			}
-			Serial.print("PWM: ");
-			Serial.println(outx_duty_temp);
-
 
 			if (incomingPacket[2] == '1')
 			{
