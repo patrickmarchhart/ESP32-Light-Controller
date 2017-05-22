@@ -5,7 +5,7 @@ Author:	Patrick Marchhart
 */
 
 #include <WiFiUdp.h>
-//#include <WiFi.h>
+#include <WiFi.h>
 
 #include "esp32-hal-ledc.h"
 #include "esp32-hal-adc.h"
@@ -44,12 +44,12 @@ Author:	Patrick Marchhart
 
 
 // WIFI configuration
-const char* ssid = "ssid";
-const char* password = "password";
+const char* ssid = "Internetz";
+const char* password = "Sagidaned1";
 
-uint8_t ip[4] = { 192, 168, 0, 4 };
+uint8_t ip[4] = { 192, 168, 178, 7 };
 uint8_t sn[4] = { 255, 255, 255, 0 };
-uint8_t gw[4] = { 192, 168, 0, 1 };
+uint8_t gw[4] = { 192, 168, 178, 1 };
 
 IPAddress    node_ip(ip[0], ip[1], ip[2], ip[3]);
 IPAddress gateway_ip(gw[0], gw[1], gw[2], gw[3]);
@@ -108,7 +108,7 @@ void setup()
 // the loop function runs over and over again until power down or reset
 void loop()
 {
-	adc_processing();
+	//adc_processing();
 	udp_processing();
 	ArtNet_processing();
 	http_processing();
@@ -292,7 +292,6 @@ void ArtNet_processing()
 			process_ArtNetdata();
 		}
 	}
-
 }
 
 void process_ArtNetdata()
@@ -472,20 +471,6 @@ void http_processing()
 								outx_duty_temp = 65535;
 							}
 
-							////debug
-							Serial.print("Channel: ");
-							Serial.println(currentLine.charAt(7));
-							Serial.print("Type: ");
-							if (currentLine.charAt(8) == 'h')
-							{
-								Serial.println("Highside");
-							}
-							if (currentLine.charAt(8) == 'l')
-							{
-								Serial.println("Lowside");
-							}
-							Serial.print("PWM: ");
-							Serial.println(outx_duty_temp);
 
 							if (currentLine.charAt(7) == '1')
 							{
